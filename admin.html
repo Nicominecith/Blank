@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Saisonpanel · Blank</title>
+<meta name="theme-color" content="#120d19">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<header><div class="wrap">
+<a class="logo" href="/"><span class="cube"></span>Blank · Saisonpanel</a>
+<nav><a href="/">Zur Seite</a></nav>
+</div></header>
+<main><section><div class="wrap" style="max-width:640px">
+<div id="login" class="box">
+<h2>Admin-Panel</h2>
+<label for="ap">Admin-Passwort</label>
+<input id="ap" type="password" autocomplete="current-password">
+<button class="btn g" id="go">Anmelden</button>
+<div id="lm" class="msg hide"></div>
+</div>
+<div id="panel" class="hide">
+<h2>Offene Anfragen (bestätigen)</h2>
+<div id="pend" class="box"></div>
+<h2 style="margin-top:30px">Bestätigte Teilnehmer</h2>
+<div id="appr" class="box"></div>
+<p><button class="btn s" id="out">Abmelden</button></p>
+</div>
+</div></section></main>
+<script src="/assets/app.js"></script>
+<script>
+let pw=sessionStorage.getItem("ap")||"";
+const H=()=>({"x-admin-password":pw});
+function btn(label,cls,fn){const b=document.createElement("button");b.className="btn s "+cls;b.textContent=label;b.onclick=fn;return b}
+async function act(action,name){try{await post("/api/admin",{action,name},H());load()}catch(e){alert(e.message)}}
+async function load(){
+  try{
+    const {members}=await api("/api/admin",{headers:H()});
+    sessionStorage.setItem("ap",pw);
+    $("#login").classList.add("hide");$("#panel").classList.remove("hide");
+    const p=members.filter(m=>m.status==="pending"),a=members.filter(m=>m.status==="approved");
+    $("#pend").replaceChildren();$("#appr").replaceChildren();
+    if(!p.length)$("#pend").innerHTML='<p class="empty">Keine neuen Eintragungen.</p>';
+    if(!a.length)$("#appr").innerHTML='<p class="empty">Noch keine Teilnehmer.</p>';
+    for(const m of p){const w=document.createElement("div");w.append(btn("Bestätigen","g",()=>act("approve",m.name)),btn("Ablehnen","r",()=>act("reject",m.name)));$("#pend").append(memberRow(m,w))}
+    for(const m of a)$("#appr").append(memberRow(m,btn("Entfernen","r",()=>{if(confirm(m.name+" entfernen?"))act("remove",m.name)})));
+  }catch(e){sessionStorage.removeItem("ap");$("#panel").classList.add("hide");$("#login").classList.remove("hide");if(pw)msg($("#lm"),e.message,"err")}
+}
+$("#go").onclick=()=>{pw=$("#ap").value;load()};
+$("#out").onclick=()=>{sessionStorage.removeItem("ap");pw="";location.reload()};
+if(pw)load();
+</script>
+</body>
+</html>

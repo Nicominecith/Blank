@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Blank · Das Minecraft-Bedrock-Projekt</title>
+<meta name="description" content="Blank: ein Minecraft-Projekt für Bedrock, gegründet von Til Sommer. Teilnehmer und Anmeldung.">
+<meta name="theme-color" content="#120d19">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<header><div class="wrap">
+<a class="logo" href="/"><span class="cube"></span>Blank</a>
+<nav><a href="#projekt">Projekt</a><a href="#teilnehmer">Teilnehmer</a><a href="#status">Server</a><a href="/player.html">Mitmachen</a></nav>
+</div></header>
+<main>
+<div class="hero"><div class="wrap">
+<span class="eyebrow">Minecraft Bedrock · von Til Sommer</span>
+<h1>Blank</h1>
+<p>Eine Welt, ein Projekt, noch kein Name. Darum heißt es einfach Blank.</p>
+<a class="btn g" href="/player.html">Mitspielen</a><a class="btn" href="#teilnehmer">Teilnehmer</a>
+</div></div>
+<div class="ticker" aria-hidden="true"><div>BLANK ✦ MINECRAFT BEDROCK ✦ GRÜNDER TIL SOMMER ✦ EINE WELT ✦ BLANK ✦ MINECRAFT BEDROCK ✦ GRÜNDER TIL SOMMER ✦ EINE WELT ✦ BLANK ✦ MINECRAFT BEDROCK ✦ GRÜNDER TIL SOMMER ✦ EINE WELT ✦ BLANK ✦ MINECRAFT BEDROCK ✦ GRÜNDER TIL SOMMER ✦ EINE WELT ✦</div></div>
+
+<section id="projekt"><div class="wrap">
+<h2>Was ist Blank?</h2>
+<p style="color:var(--mu);max-width:680px">Blank ist ein Minecraft-Projekt für die Bedrock Edition. Ihr spielt auf Handy, Konsole oder PC zusammen in einer Welt. Wir starten bei null und füllen die leere Seite gemeinsam.</p>
+<div class="grid" style="margin-top:20px">
+<div class="card"><span class="tag">PLATTFORM</span><h3>Bedrock Edition</h3><p>Crossplay auf allen Geräten.</p></div>
+<div class="card"><span class="tag">GRÜNDER</span><h3>Til Sommer</h3><p>Idee, Welt und Organisation.</p></div>
+<div class="card"><span class="tag">NAME</span><h3>Blank</h3><p>Ein Name wird noch gesucht.</p></div>
+</div></div></section>
+
+<section id="teilnehmer" class="alt"><div class="wrap">
+<h2>Teilnehmer <span id="count" style="color:var(--mu)"></span></h2>
+<div id="members" class="grid"><p class="empty">Lade Teilnehmer …</p></div>
+<p style="margin-top:20px"><a class="btn g" href="/player.html">Dich eintragen</a></p>
+</div></section>
+
+<section id="status"><div class="wrap">
+<h2>Server</h2>
+<div class="stats">
+<div class="card stat"><b>Realm</b><span>Servertyp (Bedrock)</span></div>
+<div class="card stat"><b id="pl">–</b><span>Teilnehmer</span></div>
+<div class="card stat"><b>Code</b><span>Mit dem Spieler-Passwort unter Mitmachen</span></div>
+</div>
+<p style="color:var(--mu);margin-top:16px">Ein Realm hat keine IP und keinen Port. Du trittst mit dem Realm-Code bei, den du mit dem Spieler-Passwort auf der Mitmachen-Seite siehst.</p>
+</div></section>
+</main>
+<footer><div class="wrap">
+<div class="logo" style="margin-bottom:10px"><span class="cube"></span>Blank</div>
+<small>Gründer: Til Sommer · <a href="/admin.html">Admin</a></small>
+<small>Kein offizielles Minecraft-Produkt. Nicht von Mojang oder Microsoft genehmigt und nicht mit Mojang oder Microsoft verbunden.</small>
+</div></footer>
+<script src="/assets/app.js"></script>
+<script>
+async function loadMembers(){
+  const box=$("#members");
+  try{
+    const {members}=await api("/api/members");
+    box.replaceChildren();
+    $("#count").textContent="("+members.length+")";$("#pl").textContent=members.length;
+    if(!members.length){box.innerHTML='<p class="empty">Noch niemand freigeschaltet. Sei der Erste!</p>';return}
+    for(const m of members){
+      const d=document.createElement("div");d.className="card member";
+      const i=document.createElement("img");i.src=head(m.name,80);i.alt="Skin von "+m.name;i.loading="lazy";
+      const b=document.createElement("b");b.textContent=m.fullName||m.name;
+      const mc=document.createElement("div");mc.style.color="var(--mu)";mc.textContent=m.name;
+      d.append(i,b,mc);box.append(d);
+    }
+  }catch(e){box.innerHTML='<p class="empty">Teilnehmer konnten nicht geladen werden.</p>'}
+}
+loadMembers();
+</script>
+</body>
+</html>

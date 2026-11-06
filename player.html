@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mitmachen · Blank</title>
+<meta name="theme-color" content="#120d19">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<header><div class="wrap">
+<a class="logo" href="/"><span class="cube"></span>Blank</a>
+<nav><a href="/">Start</a><a href="/#teilnehmer">Teilnehmer</a><a class="on" href="/player.html">Mitmachen</a></nav>
+</div></header>
+<main><section><div class="wrap" style="max-width:560px">
+<h2>Mitmachen</h2>
+<p style="color:var(--mu)">Trag deinen vollständigen Namen, deinen Minecraft-Namen und das Passwort ein, das du bekommen hast. Nach der Bestätigung im Saisonpanel erscheinst du mit Skin in der Teilnehmerliste. Den Realm-Code siehst du mit dem Passwort sofort.</p>
+<div class="box">
+<label for="f">Vollständiger Name</label>
+<input id="f" autocomplete="name" maxlength="40" placeholder="Vor- und Nachname">
+<label for="n">Minecraft-Name</label>
+<input id="n" autocomplete="username" maxlength="16" placeholder="z. B. Steve">
+<label for="p">Passwort</label>
+<input id="p" type="password" autocomplete="current-password" placeholder="Passwort vom Team">
+<button class="btn g" id="reg">Eintragen</button>
+<button class="btn" id="chk">Status prüfen</button>
+<button class="btn" id="rcb">Realm-Code anzeigen</button>
+<div id="m" class="msg hide"></div>
+<div id="cb" class="hide"><p>Realm-Code: <code id="rc2"></code></p><p style="color:var(--mu)">Minecraft öffnen → Freunde → Realm beitreten → Code eingeben.</p></div>
+<div id="ok" class="hide">
+<div class="row"><div class="who"><img id="hd" alt="" style="width:64px;height:64px"><b id="nm"></b></div></div>
+<p>Realm-Code: <code id="rc"></code></p>
+<p style="color:var(--mu)">Minecraft öffnen → Freunde → Realm beitreten → Code eingeben.</p>
+</div>
+</div>
+</div></section></main>
+<script src="/assets/app.js"></script>
+<script>
+const out=$("#m");
+function creds(){return{name:$("#n").value.trim(),fullName:$("#f").value.trim(),password:$("#p").value}}
+function show(r){
+  $("#ok").classList.add("hide");$("#cb").classList.add("hide");
+  if(r.status==="approved")msg(out,"Du bist freigeschaltet und stehst in der Teilnehmerliste.","ok");
+  else if(r.status==="pending")msg(out,"Eingetragen. Für die Teilnehmerliste wartet dein Name auf die Freigabe.","ok");
+  else msg(out,"Du bist noch nicht eingetragen. Dein Realm-Code steht trotzdem unten.","err");
+  if(r.realmCode){
+    $("#hd").src=head(r.name||$("#n").value.trim(),64);$("#nm").textContent=r.name||$("#n").value.trim();
+    $("#rc").textContent=r.realmCode;$("#ok").classList.remove("hide");
+  }
+}
+$("#reg").onclick=async()=>{try{show(await post("/api/register",creds()))}catch(e){msg(out,e.message,"err")}};
+$("#rcb").onclick=async()=>{try{const r=await post("/api/realm",{password:$("#p").value});$("#ok").classList.add("hide");$("#rc2").textContent=r.realmCode;$("#cb").classList.remove("hide");msg(out,"Passwort stimmt.","ok")}catch(e){$("#cb").classList.add("hide");msg(out,e.message,"err")}};
+$("#chk").onclick=async()=>{try{show(await post("/api/me",creds()))}catch(e){msg(out,e.message,"err")}};
+</script>
+</body>
+</html>
